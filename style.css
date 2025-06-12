@@ -1,0 +1,169 @@
+:root {
+    --bg-dark: #222831;
+    --card-bg: #393E46;
+    --accent-blue: #00ADB5;
+    --text-color: #EEEEEE;
+    --placeholder-color: #9a9a9a;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-color);
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+h1, h2, h3 {
+    text-align: center;
+    font-weight: 600;
+}
+
+h1 {
+    margin-bottom: 20px;
+    font-size: 2em;
+    color: var(--accent-blue);
+    text-shadow: 0 0 10px var(--accent-blue);
+}
+
+h2 {
+    font-size: 2.5rem;
+    margin-bottom: 25px;
+}
+
+.card {
+    background-color: var(--card-bg);
+    padding: 40px;
+    border-radius: 20px;
+    width: 350px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+input[type="text"], input[type="email"], input[type="password"] {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 30px;
+    background-color: var(--bg-dark);
+    color: var(--text-color);
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+input::placeholder {
+    color: var(--placeholder-color);
+}
+
+button {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 30px;
+    background-color: var(--accent-blue);
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 15px var(--accent-blue);
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px var(--accent-blue);
+}
+
+.hidden {
+    display: none;
+}
+
+/* App-specific styles */
+#app-container .card {
+    width: 450px;
+}
+
+.tabs {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.tab-button {
+    background: none;
+    box-shadow: none;
+    padding: 10px 20px;
+    width: auto;
+    border-radius: 20px;
+    color: var(--placeholder-color);
+}
+
+.tab-button.active {
+    background-color: var(--bg-dark);
+    color: var(--text-color);
+}
+
+.tab-button.secondary {
+    background-color: #c94040;
+    color: white;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.label {
+    margin: 0 0 5px 0;
+    color: var(--placeholder-color);
+    font-size: 0.9rem;
+}
+
+.info-box {
+    background-color: var(--bg-dark);
+    padding: 15px;
+    border-radius: 15px;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+#redeem-message {
+    text-align: center;
+    margin-top: 15px;
+    min-height: 1.2em;
+}
+
+/* Leaderboard */
+#leaderboard-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+.leaderboard-entry {
+    display: flex;
+    justify-content: space-between;
+    background-color: var(--bg-dark);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+.leaderboard-entry .rank { font-weight: 700; color: var(--accent-blue); }
+.leaderboard-entry .name { font-weight: 600; }
+.leaderboard-entry .balance { font-style: italic; color: var(--placeholder-color); }
+
+/* Login/Signup Toggle */
+.toggle-text {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.9em;
+}
+.toggle-text a {
+    color: var(--accent-blue);
+    font-weight: 600;
+    text-decoration: none;
+}

@@ -1,364 +1,198 @@
-/* Modern Slick Animations CSS */
-
-/* Reset and Base Styles */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+:root {
+    /* --- Refined Color Palette --- */
+    --bg-dark-start: #2c3e50; /* Center color for gradient */
+    --bg-dark-end: #1a202c;   /* Edge color for gradient */
+    --card-bg: #2d3748;      /* Slightly darker card background */
+    --accent-blue: #00ADB5;   /* The bright, glowing teal */
+    --text-color: #ecf0f1;   /* A softer white for text */
+    --placeholder-color: #95a5a6;
+    --input-bg: #1a202c;     /* Dark background for inputs/active tabs */
 }
 
 body {
-  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-  min-height: 100vh;
-  color: #ffffff;
-  overflow-x: hidden;
+    /* --- Change: Added radial gradient for the vignette effect --- */
+    background: var(--bg-dark-end);
+    background-image: radial-gradient(circle, var(--bg-dark-start) 0%, var(--bg-dark-end) 90%);
+    color: var(--text-color);
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
 }
 
-/* Smooth Scroll */
-html {
-  scroll-behavior: smooth;
+h1, h2, h3 {
+    text-align: center;
+    font-weight: 600;
 }
 
-/* Container Animations */
-.stats-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-  animation: fadeInUp 0.8s ease-out;
+h1 {
+    margin-bottom: 20px;
+    font-size: 2em;
+    color: var(--accent-blue);
+    /* --- Change: Enhanced glow effect --- */
+    text-shadow: 0 0 15px rgba(0, 173, 181, 0.7);
 }
 
-/* Navigation Styles */
-.nav-menu {
-  display: flex;
-  justify-content: center;
-  gap: 3rem;
-  margin-bottom: 4rem;
-  animation: slideInDown 0.6s ease-out;
-}
-
-.nav-item {
-  font-size: 1.2rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.8);
-  text-decoration: none;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.nav-item::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  transition: left 0.5s ease;
-}
-
-.nav-item:hover::before {
-  left: 100%;
-}
-
-.nav-item:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.1);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-/* Main Title */
-.main-title {
-  font-size: 4rem;
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: 3rem;
-  background: linear-gradient(45deg, #ffffff, #a8d8ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: textGlow 2s ease-in-out infinite alternate;
-}
-
-/* Stats Grid */
-.stats-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4rem;
-  margin-bottom: 4rem;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.stat-item {
-  text-align: center;
-  animation: scaleIn 0.6s ease-out;
-  animation-fill-mode: both;
-}
-
-.stat-item:nth-child(1) { animation-delay: 0.1s; }
-.stat-item:nth-child(2) { animation-delay: 0.2s; }
-
-.stat-label {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 1rem;
-  text-transform: lowercase;
-}
-
-.stat-value {
-  font-size: 3rem;
-  font-weight: 800;
-  color: #ffffff;
-  text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  transition: transform 0.3s ease;
-}
-
-.stat-value:hover {
-  transform: scale(1.1);
-}
-
-/* Code Section */
-.code-section {
-  text-align: center;
-  animation: slideInUp 0.8s ease-out 0.4s both;
-}
-
-.code-title {
-  font-size: 2rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 2rem;
-}
-
-.code-display {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 1.5rem 2rem;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 1.2rem;
-  color: #a8d8ff;
-  letter-spacing: 2px;
-  margin-bottom: 2rem;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.code-display::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(168, 216, 255, 0.1), transparent);
-  animation: shimmer 3s infinite;
-}
-
-.code-display:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-  border-color: rgba(168, 216, 255, 0.3);
-}
-
-/* Button Styles */
-.redeem-btn {
-  background: linear-gradient(45deg, #00d4ff, #0099cc);
-  border: none;
-  border-radius: 50px;
-  padding: 1rem 3rem;
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #ffffff;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  text-transform: lowercase;
-  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
-  position: relative;
-  overflow: hidden;
-}
-
-.redeem-btn::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  transition: width 0.3s ease, height 0.3s ease;
-}
-
-.redeem-btn:hover::before {
-  width: 300px;
-  height: 300px;
-}
-
-.redeem-btn:hover {
-  transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
-}
-
-.redeem-btn:active {
-  transform: translateY(-1px) scale(1.02);
-}
-
-/* Keyframe Animations */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes textGlow {
-  from {
-    text-shadow: 0 0 20px rgba(168, 216, 255, 0.5);
-  }
-  to {
-    text-shadow: 0 0 30px rgba(168, 216, 255, 0.8);
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: 100%;
-  }
-}
-
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-}
-
-/* Loading Animation */
-.loading {
-  animation: pulse 1.5s infinite;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .nav-menu {
-    gap: 1.5rem;
-    flex-wrap: wrap;
-  }
-  
-  .main-title {
+h2 {
     font-size: 2.5rem;
-  }
-  
-  .stats-grid {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-  
-  .stat-value {
-    font-size: 2.5rem;
-  }
-  
-  .code-display {
+    margin-bottom: 25px;
+}
+
+.card {
+    background-color: var(--card-bg);
+    padding: 40px;
+    border-radius: 20px;
+    width: 350px;
+    /* --- Change: Added a very subtle glow around the card itself --- */
+    box-shadow: 0 0 40px rgba(0, 173, 181, 0.08);
+}
+
+/* --- Change: Combined input styles for perfect consistency --- */
+input[type="text"], input[type="email"], input[type="password"] {
+    width: 100%;
+    padding: 15px 20px; /* More horizontal padding */
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 50px; /* Makes it a perfect pill shape */
+    background-color: var(--input-bg);
+    color: var(--text-color);
     font-size: 1rem;
-    padding: 1rem;
-  }
-  
-  .redeem-btn {
-    padding: 0.8rem 2rem;
-    font-size: 1rem;
-  }
+    box-sizing: border-box;
+    transition: box-shadow 0.3s ease;
 }
 
-/* Additional Hover Effects */
-.hover-lift {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+input::placeholder {
+    color: var(--placeholder-color);
 }
 
-.hover-lift:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+input:focus {
+    outline: none;
+    box-shadow: 0 0 10px rgba(0, 173, 181, 0.5);
 }
 
-/* Glass Morphism Effect */
-.glass {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(15px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
+button {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 50px; /* Makes it a perfect pill shape */
+    background-color: var(--accent-blue);
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    /* --- Change: More vibrant and pronounced glow --- */
+    box-shadow: 0 0 20px rgba(0, 173, 181, 0.6);
 }
 
-/* Gradient Text */
-.gradient-text {
-  background: linear-gradient(45deg, #00d4ff, #ffffff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 30px rgba(0, 173, 181, 0.8);
 }
 
-/* Floating Animation */
-.float {
-  animation: float 3s ease-in-out infinite;
+.hidden {
+    display: none;
 }
 
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
+/* App-specific styles */
+#app-container .card {
+    width: 450px;
+}
+
+.tabs {
+    display: flex;
+    justify-content: center; /* Center the tabs */
+    gap: 20px; /* Space between tabs */
+    margin-bottom: 30px;
+}
+
+/* --- Change: Major style update for tabs to match mockup --- */
+.tab-button {
+    background: transparent; /* Inactive tabs have no background */
+    box-shadow: none;
+    padding: 8px 16px;
+    width: auto;
+    border-radius: 50px;
+    color: var(--placeholder-color);
+    font-weight: 500;
+}
+
+.tab-button.active {
+    background-color: var(--input-bg); /* Active tab gets the dark background */
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+/* --- Change: Removed special styling for logout to match mockup --- */
+.tab-button.secondary {
+    /* No special styles needed anymore, it acts like a normal tab */
+}
+
+.tab-button:hover {
+    color: var(--text-color); /* On hover, text just gets brighter */
+    transform: none; /* No hover movement for tabs */
+    box-shadow: none;
+}
+
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.label {
+    margin: 0 0 8px 0;
+    color: var(--placeholder-color);
+    font-size: 0.9rem;
+}
+
+/* --- Change: Styled info-box to be a perfect pill like inputs --- */
+.info-box {
+    background-color: var(--input-bg);
+    padding: 15px;
+    border-radius: 50px;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+#redeem-message {
+    text-align: center;
+    margin-top: 15px;
+    min-height: 1.2em;
+    color: var(--accent-blue);
+}
+
+/* Leaderboard */
+#leaderboard-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+.leaderboard-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--input-bg);
+    padding: 12px 20px;
+    border-radius: 50px; /* Pill-shaped leaderboard entries */
+    margin-bottom: 10px;
+}
+.leaderboard-entry .rank { font-weight: 700; color: var(--accent-blue); }
+.leaderboard-entry .name { font-weight: 600; }
+.leaderboard-entry .balance { font-style: italic; color: var(--placeholder-color); }
+
+/* Login/Signup Toggle */
+.toggle-text {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.9em;
+}
+.toggle-text a {
+    color: var(--accent-blue);
+    font-weight: 600;
+    text-decoration: none;
 }

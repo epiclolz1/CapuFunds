@@ -137,33 +137,22 @@ redeemCodeButton.addEventListener('click', () => {
         return;
     }
     redeemMessage.textContent = 'Redeeming...';
-    const user = auth.currentUser;
-    if (!user) return; // Should not happen, but a good safeguard
 
-    const codeRef = db.collection('codes').doc(code);
-    const userRef = db.collection('users').doc(user.uid);
+    // Get a reference to the callable function
+    const redeemCodeFunction = firebase.functions().httpsCallable('redeemCode');
 
-    db.runTransaction(transaction => {
-        return transaction.get(codeRef).then(codeDoc => {
-            if (!codeDoc.exists) { throw "Invalid code!"; }
-            if (codeDoc.data().used) { throw "This code has already been used."; }
-            
-            return transaction.get(userRef).then(userDoc => {
-                if (!userDoc.exists) { throw "User data not found, please re-log.";} // Safety check
-                const codeValue = codeDoc.data().value;
-                const newBalance = userDoc.data().balance + codeValue;
-                transaction.update(userRef, { balance: newBalance });
-                transaction.update(codeRef, { used: true, redeemedBy: user.uid, redeemedAt: new Date() });
-                return codeValue;
-            });
+    // Call the function with the code as an argument
+    redeemCodeFunction({ code: code })
+        .then((result) => {
+            // The function was successful. Display the success message from the server.
+            redeemMessage.textContent = result.data.message;
+            redeemCodeInput.value = '';
+        })
+        .catch((error) => {
+            // The function returned an error. Display the error message from the server.
+            console.error("Error calling redeemCode function:", error);
+            redeemMessage.textContent = error.message;
         });
-    }).then(redeemedValue => {
-        redeemMessage.textContent = `Successfully redeemed ${redeemedValue}!`;
-        redeemCodeInput.value = '';
-    }).catch(error => {
-        console.error("Redeem transaction failed: ", error);
-        redeemMessage.textContent = String(error);
-    });
 });
 
 // --- 8. Tabs and Leaderboard ---

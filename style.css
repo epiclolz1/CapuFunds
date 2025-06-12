@@ -1,12 +1,12 @@
 :root {
     /* --- Refined Color Palette --- */
-    --bg-dark-start: #2c3e50; /* Center color for gradient */
-    --bg-dark-end: #1a202c;   /* Edge color for gradient */
+    --bg-dark-start: #1C3D49; /* Center color for gradient */
+    --bg-dark-end: #121D29;   /* Edge color for gradient */
     --card-bg: #152328;      /* Slightly darker card background */
     --accent-blue: #84E0FF;   /* The bright, glowing teal */
     --text-color: #ecf0f1;   /* A softer white for text */
     --placeholder-color: #95a5a6;
-    --input-bg: #121D29;     /* Dark background for inputs/active tabs */
+    --input-bg: #111D21;     /* Dark background for inputs/active tabs */
 }
 
 body {

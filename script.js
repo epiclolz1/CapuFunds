@@ -83,6 +83,9 @@ loginForm.addEventListener('submit', (e) => {
                 return db.collection('users').doc(user.uid).set({
                     username: username,
                     balance: 0
+					isAdmin: false
+					isManager: false
+					isMod: false
                 });
             })
             .catch(error => {

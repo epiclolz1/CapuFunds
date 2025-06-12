@@ -42,6 +42,8 @@ let isSignUp = false;
 // --- 5. Authentication Logic ---
 // Set initial state for the username input to be hidden for login
 loginUsernameInput.style.display = 'none';
+// **FIX:** Make username not required on initial load (login mode)
+loginUsernameInput.required = false;
 
 // CORRECTED: Use Event Delegation on the form
 loginForm.addEventListener('click', (e) => {
@@ -51,6 +53,9 @@ loginForm.addEventListener('click', (e) => {
         isSignUp = !isSignUp;
         
         loginUsernameInput.style.display = isSignUp ? 'block' : 'none';
+        // **FIX:** Toggle the 'required' property based on mode
+        loginUsernameInput.required = isSignUp; 
+
         loginButton.textContent = isSignUp ? 'Sign Up' : 'Log In';
         toggleText.innerHTML = isSignUp 
             ? 'Already have an account? <a href="#" id="toggle-signup">Log in</a>'
@@ -67,7 +72,8 @@ loginForm.addEventListener('submit', (e) => {
 
     if (isSignUp) {
         // --- Sign Up ---
-        if (!username) {
+        // The 'required' attribute handles the check now, but this is a good backup.
+        if (!username) { 
             alert('Please enter a username');
             return;
         }
@@ -111,7 +117,7 @@ auth.onAuthStateChanged(user => {
                 userNameDisplay.textContent = userData.username;
                 userBalanceDisplay.textContent = userData.balance;
             } else {
-                console.log("No such user document!");
+                console.log("No such user document! This can happen if the db write failed after signup.");
             }
         }, error => {
             console.log("Error getting user document:", error);
@@ -143,6 +149,7 @@ redeemCodeButton.addEventListener('click', () => {
             if (codeDoc.data().used) { throw "This code has already been used."; }
             
             return transaction.get(userRef).then(userDoc => {
+                if (!userDoc.exists) { throw "User data not found, please re-log.";} // Safety check
                 const codeValue = codeDoc.data().value;
                 const newBalance = userDoc.data().balance + codeValue;
                 transaction.update(userRef, { balance: newBalance });

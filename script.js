@@ -55,20 +55,24 @@ let isSignUp = false;
 
 // --- 5. Authentication Logic ---
 
-// Toggle between Login and Sign Up mode
-toggleSignupLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    isSignUp = !isSignUp;
-    
-    loginUsernameInput.style.display = isSignUp ? 'block' : 'none';
-    loginButton.textContent = isSignUp ? 'Sign Up' : 'Log In';
-    toggleText.innerHTML = isSignUp 
-        ? 'Already have an account? <a href="#" id="toggle-signup">Log in</a>'
-        : 'Don\'t have an account? <a href="#" id="toggle-signup">Sign up</a>';
+// Set initial state for the username input to be hidden
+loginUsernameInput.style.display = 'none';
 
-    // Re-add event listener to the new link
-    document.getElementById('toggle-signup').addEventListener('click', arguments.callee);
+// CORRECTED: Use Event Delegation on the form
+loginForm.addEventListener('click', (e) => {
+    // Check if the clicked element is the toggle link
+    if (e.target.id === 'toggle-signup') {
+        e.preventDefault(); // Prevent the link from navigating
+        isSignUp = !isSignUp;
+        
+        loginUsernameInput.style.display = isSignUp ? 'block' : 'none';
+        loginButton.textContent = isSignUp ? 'Sign Up' : 'Log In';
+        toggleText.innerHTML = isSignUp 
+            ? 'Already have an account? <a href="#" id="toggle-signup">Log in</a>'
+            : 'Don\'t have an account? <a href="#" id="toggle-signup">Sign up</a>';
+    }
 });
+
 
 // Handle form submission for both login and signup
 loginForm.addEventListener('submit', (e) => {

@@ -4,7 +4,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyD-6UiwuoZORnm7P965pP0QxksxcWrNn04",
   authDomain: "capufunds.firebaseapp.com",
   projectId: "capufunds",
-  storageBucket: "capufunds.appspot.com", // Corrected storage bucket domain
+  storageBucket: "capufunds.appspot.com",
   messagingSenderId: "221516557110",
   appId: "1:221516557110:web:8159ec978d77c9d834e197",
   measurementId: "G-X88X4FV5Z7"
@@ -14,11 +14,8 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
-// You DO NOT need firebase-functions-compat.js for this solution
-// as we are not using Cloud Functions.
 
 // --- 3. Get DOM Elements ---
-// (Your DOM element code is correct, no changes needed here)
 const loginContainer = document.getElementById('login-container');
 const appContainer = document.getElementById('app-container');
 const loginForm = document.getElementById('login-form');
@@ -44,9 +41,9 @@ const leaderboardList = document.getElementById('leaderboard-list');
 let isSignUp = false;
 
 // --- 5. Authentication Logic ---
-// (Your login/signup toggle logic is correct, no changes needed here)
 loginUsernameInput.style.display = 'none';
 loginUsernameInput.required = false;
+
 loginForm.addEventListener('click', (e) => {
     if (e.target.id === 'toggle-signup') {
         e.preventDefault();
@@ -61,7 +58,6 @@ loginForm.addEventListener('click', (e) => {
 });
 
 
-// Handle form submission for both login and signup
 loginForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const email = loginEmailInput.value;
@@ -69,7 +65,6 @@ loginForm.addEventListener('submit', (e) => {
     const username = loginUsernameInput.value;
 
     if (isSignUp) {
-        // --- Sign Up ---
         if (!username) { 
             alert('Please enter a username');
             return;
@@ -77,7 +72,6 @@ loginForm.addEventListener('submit', (e) => {
         auth.createUserWithEmailAndPassword(email, password)
             .then(userCredential => {
                 const user = userCredential.user;
-                // **FIXED**: Added missing commas in the user data object
                 return db.collection('users').doc(user.uid).set({
                     username: username,
                     balance: 0,
@@ -91,7 +85,6 @@ loginForm.addEventListener('submit', (e) => {
                 console.error("Signup Error:", error);
             });
     } else {
-        // --- Log In ---
         auth.signInWithEmailAndPassword(email, password)
             .catch(error => {
                 alert(error.message);
@@ -100,13 +93,11 @@ loginForm.addEventListener('submit', (e) => {
     }
 });
 
-// Logout
 logoutButton.addEventListener('click', () => {
     auth.signOut();
 });
 
 // --- 6. Auth State Observer ---
-// (Your auth state observer is correct, no changes needed)
 auth.onAuthStateChanged(user => {
     if (user) {
         loginContainer.classList.add('hidden');
@@ -132,7 +123,6 @@ auth.onAuthStateChanged(user => {
 });
 
 // --- 7. App Functionality ---
-// This transaction logic is now secure because of our new rules.
 redeemCodeButton.addEventListener('click', () => {
     const codeId = redeemCodeInput.value.trim().toUpperCase();
     if (!codeId) {
@@ -147,7 +137,6 @@ redeemCodeButton.addEventListener('click', () => {
     const userRef = db.collection('users').doc(user.uid);
     const codeRef = db.collection('codes').doc(codeId);
 
-    // Run the redeem logic as a secure Firestore transaction.
     db.runTransaction(async (transaction) => {
         const codeDoc = await transaction.get(codeRef);
         const userDoc = await transaction.get(userRef);
@@ -165,8 +154,16 @@ redeemCodeButton.addEventListener('click', () => {
         const codeValue = codeDoc.data().value;
         const newBalance = userDoc.data().balance + codeValue;
 
-        // The security rules will now validate these changes together.
-        transaction.update(userRef, { balance: newBalance });
+        // --- THE ONLY CHANGE IS HERE ---
+        // We update the user's balance AND add a field that references the code being used.
+        // The security rules will use this 'lastRedeemedCode' field to validate the math.
+        transaction.update(userRef, { 
+            balance: newBalance,
+            lastRedeemedCode: codeId 
+        });
+        // -----------------------------
+
+        // This part remains unchanged
         transaction.update(codeRef, {
             used: true,
             redeemedBy: user.uid,
@@ -180,14 +177,13 @@ redeemCodeButton.addEventListener('click', () => {
         redeemCodeInput.value = '';
     }).catch((error) => {
         console.error("Redeem transaction failed: ", error);
-        // This error will now be more helpful. If it's a permissions error,
-        // it means our rules correctly blocked a bad operation.
         redeemMessage.textContent = error.toString();
+        // If the error is 'permission-denied', it means the security rules successfully
+        // blocked a tampered transaction from your friends!
     });
 });
 
 // --- 8. Tabs and Leaderboard ---
-// (Your tab and leaderboard logic is correct, no changes needed)
 statsTab.addEventListener('click', () => {
     statsView.classList.remove('hidden');
     leaderboardView.classList.add('hidden');

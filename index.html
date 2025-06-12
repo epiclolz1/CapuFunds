@@ -4,16 +4,549 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CapuFunds</title>
-    <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #1a1f2e;
+            --card-bg: #2d3748;
+            --accent-blue: #00d4ff;
+            --text-color: #ffffff;
+            --text-secondary: #a0aec0;
+            --placeholder-color: #718096;
+            --error-color: #ff6b6b;
+            --success-color: #4ade80;
+            --glow: 0 0 20px rgba(0, 212, 255, 0.3);
+            --glow-strong: 0 0 30px rgba(0, 212, 255, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #0f1419 100%);
+            color: var(--text-color);
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated background particles */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 212, 255, 0.05) 0%, transparent 50%);
+            animation: backgroundPulse 8s ease-in-out infinite alternate;
+            z-index: -1;
+        }
+
+        @keyframes backgroundPulse {
+            0% { opacity: 0.3; }
+            100% { opacity: 0.7; }
+        }
+
+        /* Floating orbs for ambient animation */
+        .floating-orb {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-blue);
+            animation: float 8s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        .floating-orb:nth-child(1) {
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-orb:nth-child(2) {
+            top: 60%;
+            right: 15%;
+            animation-delay: 2s;
+        }
+
+        .floating-orb:nth-child(3) {
+            bottom: 30%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) translateX(0px);
+                opacity: 0.7;
+            }
+            25% {
+                transform: translateY(-20px) translateX(10px);
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(-10px) translateX(-5px);
+                opacity: 0.8;
+            }
+            75% {
+                transform: translateY(-15px) translateX(5px);
+                opacity: 0.9;
+            }
+        }
+
+        /* Hide/show functionality */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Container styles */
+        #login-container, #app-container {
+            width: 100%;
+            max-width: 450px;
+            padding: 20px;
+            animation: slideIn 1s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Main title */
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-align: center;
+            background: linear-gradient(135deg, var(--text-color), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titlePulse 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes titlePulse {
+            0% { filter: brightness(1); }
+            100% { filter: brightness(1.2); }
+        }
+
+        h2, h3 {
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 25px;
+        }
+
+        h2 {
+            font-size: 2.2rem;
+            color: var(--text-color);
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            color: var(--text-secondary);
+            margin-top: 30px;
+        }
+
+        /* Card styles */
+        .card {
+            background: rgba(45, 55, 72, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            animation: cardFloat 6s ease-in-out infinite alternate;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes cardFloat {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-8px); }
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(
+                from 0deg,
+                transparent 0deg,
+                rgba(0, 212, 255, 0.1) 90deg,
+                transparent 180deg,
+                rgba(0, 212, 255, 0.1) 270deg,
+                transparent 360deg
+            );
+            animation: rotate 15s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Form inputs */
+        input[type="text"], input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 18px 24px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 50px;
+            background: rgba(26, 31, 46, 0.8);
+            color: var(--text-color);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        input::placeholder {
+            color: var(--placeholder-color);
+        }
+
+        input:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Buttons */
+        button {
+            padding: 18px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        /* Primary buttons */
+        #login-button, #redeem-code-button {
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent-blue), #00a8ff);
+            color: white;
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+
+        #login-button:hover, #redeem-code-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.5);
+        }
+
+        /* Tab buttons */
+        .tabs {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            gap: 15px;
+        }
+
+        .tab-button {
+            background: rgba(26, 31, 46, 0.6);
+            color: var(--text-secondary);
+            padding: 12px 24px;
+            border-radius: 25px;
+            flex: 1;
+            border: 1px solid rgba(0, 212, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .tab-button:hover {
+            color: var(--text-color);
+            transform: translateY(-2px);
+            border-color: rgba(0, 212, 255, 0.3);
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, var(--accent-blue), #00a8ff);
+            color: white;
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+        }
+
+        .tab-button.secondary {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+        }
+
+        .tab-button.secondary:hover {
+            box-shadow: 0 5px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        /* Info grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .label {
+            margin: 0 0 10px 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .info-box {
+            background: rgba(26, 31, 46, 0.8);
+            padding: 20px 15px;
+            border-radius: 20px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            text-align: center;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .info-box:hover {
+            transform: scale(1.05);
+            box-shadow: var(--glow);
+            border-color: var(--accent-blue);
+        }
+
+        .info-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+            animation: shimmer 4s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            50% { left: 100%; }
+            100% { left: 100%; }
+        }
+
+        /* Messages */
+        #redeem-message {
+            text-align: center;
+            margin-top: 15px;
+            min-height: 1.2em;
+            font-weight: 500;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .success { color: var(--success-color); }
+        .error { color: var(--error-color); }
+
+        /* Leaderboard */
+        #leaderboard-list {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .leaderboard-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(26, 31, 46, 0.6);
+            padding: 18px 20px;
+            border-radius: 15px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(0, 212, 255, 0.1);
+            transition: all 0.3s ease;
+            animation: slideInLeft 0.5s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .leaderboard-entry:hover {
+            transform: translateX(5px);
+            border-color: rgba(0, 212, 255, 0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .leaderboard-entry .rank {
+            font-weight: 700;
+            color: var(--accent-blue);
+            font-size: 1.1rem;
+            min-width: 40px;
+        }
+
+        .leaderboard-entry .name {
+            font-weight: 600;
+            flex: 1;
+            margin-left: 15px;
+        }
+
+        .leaderboard-entry .balance {
+            font-style: italic;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Toggle text */
+        .toggle-text {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 0.95em;
+            color: var(--text-secondary);
+        }
+
+        .toggle-text a {
+            color: var(--accent-blue);
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-text a:hover {
+            text-shadow: 0 0 10px var(--accent-blue);
+        }
+
+        /* Scrollbar styling */
+        #leaderboard-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #leaderboard-list::-webkit-scrollbar-track {
+            background: rgba(26, 31, 46, 0.5);
+            border-radius: 3px;
+        }
+
+        #leaderboard-list::-webkit-scrollbar-thumb {
+            background: var(--accent-blue);
+            border-radius: 3px;
+        }
+
+        /* Responsive design */
+        @media (max-width: 600px) {
+            #login-container, #app-container {
+                padding: 15px;
+                max-width: 90%;
+            }
+            
+            .card {
+                padding: 30px 25px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            h2 {
+                font-size: 1.8rem;
+            }
+            
+            .tabs {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .info-grid {
+                gap: 20px;
+            }
+            
+            .info-box {
+                font-size: 1.1rem;
+                padding: 15px 10px;
+            }
+        }
+
+        /* Loading animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 212, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent-blue);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
+    <!-- Floating orbs for ambient animation -->
+    <div class="floating-orb"></div>
+    <div class="floating-orb"></div>
+    <div class="floating-orb"></div>
 
     <!-- Login Container -->
     <div id="login-container">
-        <h1>CapuFunds Login</h1>
+        <h1>CapuFunds</h1>
         <div class="card">
             <form id="login-form">
                 <input type="text" id="login-username" placeholder="username" required>
@@ -41,7 +574,7 @@
                     <div><p class="label">name</p><div class="info-box" id="user-name">...</div></div>
                 </div>
                 <h3>Redeem Balance Code</h3>
-                <input type="text" id="redeem-code-input" placeholder="Redeem Code">
+                <input type="text" id="redeem-code-input" placeholder="Enter redeem code">
                 <button id="redeem-code-button">redeem code</button>
                 <p id="redeem-message"></p>
             </div>
@@ -53,16 +586,249 @@
         </div>
     </div>
 
-    <!-- 
-      ===============================================================
-      CRITICAL: SCRIPT TAGS MUST BE AT THE END OF THE BODY
-      ===============================================================
-    -->
+    <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     
-    <!-- Your Script -->
-    <script src="script.js"></script>
+    <!-- Enhanced Script with Animations -->
+    <script>
+        // Add ripple effect to buttons
+        function addRippleEffect(button) {
+            button.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                const rect = button.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.cssText = `
+                    position: absolute;
+                    left: ${x}px;
+                    top: ${y}px;
+                    width: ${size}px;
+                    height: ${size}px;
+                    border-radius: 50%;
+                    background: rgba(255, 255, 255, 0.3);
+                    transform: scale(0);
+                    animation: ripple 0.6s ease-out;
+                    pointer-events: none;
+                `;
+                
+                button.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            });
+        }
+
+        // Add ripple animation keyframes
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(2);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Animate number counting
+        function animateValue(element, start, end, duration = 2000) {
+            if (isNaN(end)) return;
+            
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const value = Math.floor(progress * (end - start) + start);
+                element.textContent = value.toLocaleString();
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // Enhanced tab switching with animations
+        function switchTab(activeTab, targetView) {
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab-button').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Add active class to clicked tab
+            activeTab.classList.add('active');
+            
+            // Hide all views with fade out
+            document.querySelectorAll('#stats-view, #leaderboard-view').forEach(view => {
+                if (!view.classList.contains('hidden')) {
+                    view.style.opacity = '0';
+                    view.style.transform = 'translateY(20px)';
+                    setTimeout(() => {
+                        view.classList.add('hidden');
+                        view.style.opacity = '';
+                        view.style.transform = '';
+                    }, 300);
+                }
+            });
+            
+            // Show target view with fade in
+            setTimeout(() => {
+                targetView.classList.remove('hidden');
+                targetView.style.opacity = '0';
+                targetView.style.transform = 'translateY(20px)';
+                
+                requestAnimationFrame(() => {
+                    targetView.style.transition = 'all 0.3s ease';
+                    targetView.style.opacity = '1';
+                    targetView.style.transform = 'translateY(0)';
+                    
+                    setTimeout(() => {
+                        targetView.style.transition = '';
+                        targetView.style.opacity = '';
+                        targetView.style.transform = '';
+                    }, 300);
+                });
+            }, 300);
+        }
+
+        // Enhanced message display
+        function showMessage(elementId, message, type = 'info', duration = 3000) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = type;
+            element.style.opacity = '0';
+            element.style.transform = 'translateY(-10px)';
+            
+            requestAnimationFrame(() => {
+                element.style.transition = 'all 0.3s ease';
+                element.style.opacity = '1';
+                element.style.transform = 'translateY(0)';
+            });
+            
+            if (duration > 0) {
+                setTimeout(() => {
+                    element.style.opacity = '0';
+                    element.style.transform = 'translateY(-10px)';
+                    setTimeout(() => {
+                        element.textContent = '';
+                        element.className = '';
+                    }, 300);
+                }, duration);
+            }
+        }
+
+        // Enhanced container switching
+        function switchContainer(hideContainer, showContainer) {
+            hideContainer.style.opacity = '0';
+            hideContainer.style.transform = 'translateY(30px)';
+            
+            setTimeout(() => {
+                hideContainer.classList.add('hidden');
+                showContainer.classList.remove('hidden');
+                
+                showContainer.style.opacity = '0';
+                showContainer.style.transform = 'translateY(30px)';
+                
+                requestAnimationFrame(() => {
+                    showContainer.style.transition = 'all 0.5s ease';
+                    showContainer.style.opacity = '1';
+                    showContainer.style.transform = 'translateY(0)';
+                    
+                    setTimeout(() => {
+                        showContainer.style.transition = '';
+                        hideContainer.style.opacity = '';
+                        hideContainer.style.transform = '';
+                        showContainer.style.opacity = '';
+                        showContainer.style.transform = '';
+                    }, 500);
+                });
+            }, 300);
+        }
+
+        // Initialize animations when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add ripple effects to all buttons
+            document.querySelectorAll('button').forEach(addRippleEffect);
+            
+            // Tab switching functionality
+            document.getElementById('stats-tab').addEventListener('click', () => {
+                switchTab(document.getElementById('stats-tab'), document.getElementById('stats-view'));
+            });
+            
+            document.getElementById('leaderboard-tab').addEventListener('click', () => {
+                switchTab(document.getElementById('leaderboard-tab'), document.getElementById('leaderboard-view'));
+            });
+            
+            // Enhanced input focus effects
+            document.querySelectorAll('input').forEach(input => {
+                input.addEventListener('focus', () => {
+                    input.style.transform = 'translateY(-2px) scale(1.02)';
+                });
+                
+                input.addEventListener('blur', () => {
+                    input.style.transform = '';
+                });
+            });
+            
+            // Enhanced hover effects for info boxes
+            document.querySelectorAll('.info-box').forEach(box => {
+                box.addEventListener('mouseenter', () => {
+                    box.style.transform = 'scale(1.05) rotateY(5deg)';
+                });
+                
+                box.addEventListener('mouseleave', () => {
+                    box.style.transform = '';
+                });
+            });
+        });
+
+        // Example functions for your script.js integration
+        function updateUserBalance(balance) {
+            const balanceElement = document.getElementById('user-balance');
+            const currentBalance = parseInt(balanceElement.textContent.replace(/,/g, '')) || 0;
+            animateValue(balanceElement, currentBalance, balance);
+        }
+
+        function updateUserName(name) {
+            document.getElementById('user-name').textContent = name;
+        }
+
+        function showLoginSuccess() {
+            const loginContainer = document.getElementById('login-container');
+            const appContainer = document.getElementById('app-container');
+            switchContainer(loginContainer, appContainer);
+        }
+
+        function showLoginError(message) {
+            showMessage('redeem-message', message, 'error');
+        }
+
+        function showRedeemSuccess(message) {
+            showMessage('redeem-message', message, 'success');
+        }
+
+        function showRedeemError(message) {
+            showMessage('redeem-message', message, 'error');
+        }
+
+        // Enhanced logout function
+        function logout() {
+            const loginContainer = document.getElementById('login-container');
+            const appContainer = document.getElementById('app-container');
+            switchContainer(appContainer, loginContainer);
+            
+            // Reset form
+            document.getElementById('login-form').reset();
+            document.getElementById('user-balance').textContent = '...';
+            document.getElementById('user-name').textContent = '...';
+        }
+
+        // Add logout functionality
+        document.getElementById('logout-button').addEventListener('click', logout);
+    </script>
+    
+    <!-- Your original script.js should be included here -->
+    <!-- <script src="script.js"></script> -->
 </body>
 </html>

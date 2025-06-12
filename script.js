@@ -130,74 +130,69 @@ auth.onAuthStateChanged(user => {
 });
 
 // --- 7. App Functionality ---
-redeemCodeButton.addEventListener('click', async () => {
-    const codeId = redeemCodeInput.value.trim().toUpperCase(); // Make codes case-insensitive
+redeemCodeButton.addEventListener('click', () => {
+    const codeId = redeemCodeInput.value.trim().toUpperCase();
     if (!codeId) {
         redeemMessage.textContent = 'Please enter a code.';
         return;
     }
-    redeemMessage.textContent = 'Verifying...';
+    redeemMessage.textContent = 'Processing...';
 
     const user = auth.currentUser;
     if (!user) return;
 
-    // Define all document references
+    // Get references to the documents we need to work with.
     const userRef = db.collection('users').doc(user.uid);
     const codeRef = db.collection('codes').doc(codeId);
-    const requestRef = db.collection('redeem_requests').doc(user.uid); // The request ID is the User's ID
 
-    try {
-        // PRE-FLIGHT CHECK: First, create the validated request document.
-        // Our security rules will do the heavy lifting of validating the code.
-        // If this write fails, it means the code is invalid or used, and it will
-        // throw a "permission-denied" error, which we'll catch.
-        await requestRef.set({ 
-            codeId: codeId,
-            requestedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        
-        redeemMessage.textContent = 'Processing...';
+    // Run the redeem logic as a secure Firestore transaction.
+    db.runTransaction(async (transaction) => {
+        // Inside a transaction, you do all your READS first.
+        const codeDoc = await transaction.get(codeRef);
+        const userDoc = await transaction.get(userRef);
 
-        // If we got here, the request was valid. Now we can perform the real transaction.
-        // Get the actual value of the code from the database.
-        const codeDoc = await codeRef.get();
+        // --- VALIDATION ---
+        // Stop if the code doesn't exist.
+        if (!codeDoc.exists) {
+            throw "Invalid code!"; // This message will be sent to the .catch() block
+        }
+        // Stop if the code has already been used.
+        if (codeDoc.data().used) {
+            throw "This code has already been used.";
+        }
+        // Stop if for some reason the user document doesn't exist.
+        if (!userDoc.exists) {
+            throw "Could not find your user data.";
+        }
+
+        // --- CALCULATION ---
         const codeValue = codeDoc.data().value;
+        const newBalance = userDoc.data().balance + codeValue;
 
-        // Create a batch for the main transaction
-        const batch = db.batch();
-
-        // 1. Update the user's balance.
-        batch.update(userRef, { 
-            balance: firebase.firestore.FieldValue.increment(codeValue) 
-        });
-
-        // 2. Mark the code as used by this user.
-        batch.update(codeRef, { 
-            used: true, 
+        // --- WRITES ---
+        // After all reads, you perform your writes.
+        // The security rules will now validate these changes.
+        transaction.update(userRef, { balance: newBalance });
+        transaction.update(codeRef, {
+            used: true,
             redeemedBy: user.uid,
             redeemedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        // 3. IMPORTANT: Delete the request document so it can't be used again.
-        batch.delete(requestRef);
+        // The transaction will automatically return the successful value.
+        return `Successfully redeemed ${codeValue}!`;
 
-        // Commit all three operations at once.
-        await batch.commit();
-
-        redeemMessage.textContent = `Successfully redeemed ${codeValue}!`;
+    }).then((successMessage) => {
+        // This block runs if the transaction was successful.
+        redeemMessage.textContent = successMessage;
         redeemCodeInput.value = '';
-
-    } catch (error) {
-        console.error("Redeem failed: ", error);
-        if (error.code === 'permission-denied') {
-            redeemMessage.textContent = 'Invalid or already used code.';
-        } else {
-            redeemMessage.textContent = 'An unknown error occurred.';
-        }
-
-        // Clean up any lingering request doc if the second part failed.
-        await requestRef.delete().catch(() => {});
-    }
+    }).catch((error) => {
+        // This block runs if the transaction failed, or if we "threw" an error.
+        // If the rules deny it, the error will be "Missing or insufficient permissions."
+        // If our checks fail, it will be our custom message.
+        console.error("Redeem transaction failed: ", error);
+        redeemMessage.textContent = error.toString();
+    });
 });
 
 // --- 8. Tabs and Leaderboard ---

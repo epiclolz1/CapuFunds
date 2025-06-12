@@ -130,29 +130,62 @@ auth.onAuthStateChanged(user => {
 });
 
 // --- 7. App Functionality ---
-redeemCodeButton.addEventListener('click', () => {
-    const code = redeemCodeInput.value.trim();
-    if (!code) {
+redeemCodeButton.addEventListener('click', async () => {
+    const codeId = redeemCodeInput.value.trim();
+    if (!codeId) {
         redeemMessage.textContent = 'Please enter a code.';
         return;
     }
-    redeemMessage.textContent = 'Redeeming...';
+    redeemMessage.textContent = 'Verifying code...';
 
-    // Get a reference to the callable function
-    const redeemCodeFunction = firebase.functions().httpsCallable('redeemCode');
+    const user = auth.currentUser;
+    if (!user) return;
 
-    // Call the function with the code as an argument
-    redeemCodeFunction({ code: code })
-        .then((result) => {
-            // The function was successful. Display the success message from the server.
-            redeemMessage.textContent = result.data.message;
-            redeemCodeInput.value = '';
-        })
-        .catch((error) => {
-            // The function returned an error. Display the error message from the server.
-            console.error("Error calling redeemCode function:", error);
-            redeemMessage.textContent = error.message;
+    // Define all the document references we'll need
+    const userRef = db.collection('users').doc(user.uid);
+    const codeRef = db.collection('codes').doc(codeId);
+    const pendingRedeemRef = db.collection('users').doc(user.uid).collection('pending_redeems').doc(codeId);
+    
+    try {
+        // We will perform a series of batched writes.
+        // First, get the code's value from the database. We can't trust the client.
+        const codeDoc = await codeRef.get();
+        if (!codeDoc.exists || codeDoc.data().used) {
+            throw new Error("Invalid or already used code.");
+        }
+        const codeValue = codeDoc.data().value;
+        redeemMessage.textContent = 'Processing...';
+
+        // Create a "batch" to perform multiple writes atomically.
+        const batch = db.batch();
+
+        // Step 1: Create the pending redeem document. The security rule will validate this.
+        batch.set(pendingRedeemRef, { value: codeValue });
+        
+        // Step 2: Update the user's balance. The security rule will check this against the pending doc.
+        // We use a special FieldValue to increment the balance on the server.
+        batch.update(userRef, { balance: firebase.firestore.FieldValue.increment(codeValue) });
+        
+        // Step 3: Mark the original code as used.
+        batch.update(codeRef, { 
+            used: true, 
+            redeemedBy: user.uid,
+            redeemedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
+        
+        // Step 4: Immediately delete the pending redeem document.
+        batch.delete(pendingRedeemRef);
+
+        // Commit all the changes at once. If any part fails, they all fail.
+        await batch.commit();
+
+        redeemMessage.textContent = `Successfully redeemed ${codeValue}!`;
+        redeemCodeInput.value = '';
+
+    } catch (error) {
+        console.error("Redeem failed: ", error);
+        redeemMessage.textContent = error.message;
+    }
 });
 
 // --- 8. Tabs and Leaderboard ---

@@ -131,52 +131,57 @@ auth.onAuthStateChanged(user => {
 
 // --- 7. App Functionality ---
 redeemCodeButton.addEventListener('click', async () => {
-    const codeId = redeemCodeInput.value.trim();
+    const codeId = redeemCodeInput.value.trim().toUpperCase(); // Make codes case-insensitive
     if (!codeId) {
         redeemMessage.textContent = 'Please enter a code.';
         return;
     }
-    redeemMessage.textContent = 'Verifying code...';
+    redeemMessage.textContent = 'Verifying...';
 
     const user = auth.currentUser;
     if (!user) return;
 
-    // Define all the document references we'll need
+    // Define all document references
     const userRef = db.collection('users').doc(user.uid);
     const codeRef = db.collection('codes').doc(codeId);
-    const pendingRedeemRef = db.collection('users').doc(user.uid).collection('pending_redeems').doc(codeId);
-    
+    const requestRef = db.collection('redeem_requests').doc(user.uid); // The request ID is the User's ID
+
     try {
-        // We will perform a series of batched writes.
-        // First, get the code's value from the database. We can't trust the client.
-        const codeDoc = await codeRef.get();
-        if (!codeDoc.exists || codeDoc.data().used) {
-            throw new Error("Invalid or already used code.");
-        }
-        const codeValue = codeDoc.data().value;
+        // PRE-FLIGHT CHECK: First, create the validated request document.
+        // Our security rules will do the heavy lifting of validating the code.
+        // If this write fails, it means the code is invalid or used, and it will
+        // throw a "permission-denied" error, which we'll catch.
+        await requestRef.set({ 
+            codeId: codeId,
+            requestedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
         redeemMessage.textContent = 'Processing...';
 
-        // Create a "batch" to perform multiple writes atomically.
+        // If we got here, the request was valid. Now we can perform the real transaction.
+        // Get the actual value of the code from the database.
+        const codeDoc = await codeRef.get();
+        const codeValue = codeDoc.data().value;
+
+        // Create a batch for the main transaction
         const batch = db.batch();
 
-        // Step 1: Create the pending redeem document. The security rule will validate this.
-        batch.set(pendingRedeemRef, { value: codeValue });
-        
-        // Step 2: Update the user's balance. The security rule will check this against the pending doc.
-        // We use a special FieldValue to increment the balance on the server.
-        batch.update(userRef, { balance: firebase.firestore.FieldValue.increment(codeValue) });
-        
-        // Step 3: Mark the original code as used.
+        // 1. Update the user's balance.
+        batch.update(userRef, { 
+            balance: firebase.firestore.FieldValue.increment(codeValue) 
+        });
+
+        // 2. Mark the code as used by this user.
         batch.update(codeRef, { 
             used: true, 
             redeemedBy: user.uid,
             redeemedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        
-        // Step 4: Immediately delete the pending redeem document.
-        batch.delete(pendingRedeemRef);
 
-        // Commit all the changes at once. If any part fails, they all fail.
+        // 3. IMPORTANT: Delete the request document so it can't be used again.
+        batch.delete(requestRef);
+
+        // Commit all three operations at once.
         await batch.commit();
 
         redeemMessage.textContent = `Successfully redeemed ${codeValue}!`;
@@ -184,7 +189,14 @@ redeemCodeButton.addEventListener('click', async () => {
 
     } catch (error) {
         console.error("Redeem failed: ", error);
-        redeemMessage.textContent = error.message;
+        if (error.code === 'permission-denied') {
+            redeemMessage.textContent = 'Invalid or already used code.';
+        } else {
+            redeemMessage.textContent = 'An unknown error occurred.';
+        }
+
+        // Clean up any lingering request doc if the second part failed.
+        await requestRef.delete().catch(() => {});
     }
 });
 

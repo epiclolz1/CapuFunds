@@ -508,64 +508,17 @@
         </div>
     </div>
 
-    <script>
-        // Create floating particles
-        function createParticles() {
-            const particlesContainer = document.getElementById('particles');
-            const particleCount = 20;
-
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 20 + 's';
-                particle.style.animationDuration = (Math.random() * 10 + 15) + 's';
-                particlesContainer.appendChild(particle);
-            }
-        }
-
-        // Initialize particles
-        createParticles();
-
-        // Tab switching functionality
-        document.getElementById('stats-tab').addEventListener('click', () => {
-            switchTab('stats');
-        });
-
-        document.getElementById('leaderboard-tab').addEventListener('click', () => {
-            switchTab('leaderboard');
-        });
-
-        function switchTab(tabName) {
-            // Remove active class from all tabs
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            
-            // Hide all views
-            document.getElementById('stats-view').classList.add('hidden');
-            document.getElementById('leaderboard-view').classList.add('hidden');
-            
-            // Show selected view and activate tab
-            if (tabName === 'stats') {
-                document.getElementById('stats-tab').classList.add('active');
-                document.getElementById('stats-view').classList.remove('hidden');
-            } else if (tabName === 'leaderboard') {
-                document.getElementById('leaderboard-tab').classList.add('active');
-                document.getElementById('leaderboard-view').classList.remove('hidden');
-            }
-        }
-
-        // Your existing script.js will handle all the login, logout, and redeem functionality
-
-        // Add some interactive effects
-        document.querySelectorAll('.input-field').forEach(input => {
-            input.addEventListener('focus', () => {
-                input.parentElement.style.transform = 'scale(1.02)';
-            });
-            
-            input.addEventListener('blur', () => {
-                input.parentElement.style.transform = 'scale(1)';
-            });
-        });
-    </script>
+    <!-- 
+      ===============================================================
+      CRITICAL: SCRIPT TAGS MUST BE AT THE END OF THE BODY
+      ===============================================================
+    -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-functions-compat.js"></script>
+    
+    <!-- Your Script -->
+    <script src="script.js"></script>
 </body>
 </html>

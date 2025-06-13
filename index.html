@@ -137,10 +137,6 @@
             z-index: -1;
         }
 
-        .glass-card:hover::before {
-            opacity: 0.1;
-        }
-
         @keyframes slideUp {
             from {
                 opacity: 0;
@@ -313,10 +309,6 @@
             transition: left 0.5s ease;
         }
 
-        .stat-card:hover::before {
-            left: 0;
-        }
-
         .stat-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
@@ -362,15 +354,6 @@
             background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary));
             transform: scaleY(0);
             transition: transform 0.3s ease;
-        }
-
-        .leaderboard-item:hover::before {
-            transform: scaleY(1);
-        }
-
-        .leaderboard-item:hover {
-            transform: translateX(8px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
         }
 
         .rank {
@@ -500,11 +483,11 @@
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-label">Balance</div>
-                        <div class="stat-value" id="user-balance">$0.00</div>
+                        <div class="stat-value" id="user-balance">...</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Account</div>
-                        <div class="stat-value" id="user-name">Loading...</div>
+                        <div class="stat-value" id="user-name">...</div>
                     </div>
                 </div>
                 
@@ -519,12 +502,7 @@
             <div id="leaderboard-view" class="hidden">
                 <h2 class="section-title">Leaderboard</h2>
                 <div id="leaderboard-list">
-                    <!-- Sample leaderboard items -->
-                    <div class="leaderboard-item">
-                        <span class="rank">#1</span>
-                        <span class="player-name">Loading...</span>
-                        <span class="balance">$0.00</span>
-                    </div>
+                    <!-- Your Firebase data will populate this -->
                 </div>
             </div>
         </div>
@@ -576,42 +554,7 @@
             }
         }
 
-        // Mock login functionality for demo
-        document.getElementById('login-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            // Simulate login
-            setTimeout(() => {
-                document.getElementById('login-container').classList.add('hidden');
-                document.getElementById('app-container').classList.remove('hidden');
-                
-                // Update user info
-                document.getElementById('user-name').textContent = document.getElementById('login-username').value;
-                document.getElementById('user-balance').textContent = '$1,234.56';
-            }, 500);
-        });
-
-        // Logout functionality
-        document.getElementById('logout-button').addEventListener('click', () => {
-            document.getElementById('app-container').classList.add('hidden');
-            document.getElementById('login-container').classList.remove('hidden');
-            
-            // Reset form
-            document.getElementById('login-form').reset();
-        });
-
-        // Redeem code functionality
-        document.getElementById('redeem-code-button').addEventListener('click', () => {
-            const code = document.getElementById('redeem-code-input').value;
-            const messageEl = document.getElementById('redeem-message');
-            
-            if (code.trim()) {
-                messageEl.innerHTML = '<div class="message success">Code redeemed successfully!</div>';
-                document.getElementById('redeem-code-input').value = '';
-            } else {
-                messageEl.innerHTML = '<div class="message error">Please enter a valid code</div>';
-            }
-        });
+        // Your existing script.js will handle all the login, logout, and redeem functionality
 
         // Add some interactive effects
         document.querySelectorAll('.input-field').forEach(input => {
